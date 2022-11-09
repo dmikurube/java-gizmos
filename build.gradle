@@ -1,0 +1,16 @@
+plugins {
+    id "java"
+}
+
+configurations {
+    compileClasspath.resolutionStrategy.activateDependencyLocking()
+    runtimeClasspath.resolutionStrategy.activateDependencyLocking()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "."
+        }
+    }
+}
