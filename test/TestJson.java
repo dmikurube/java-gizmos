@@ -17,6 +17,8 @@ public class TestJson {
 
     private static Stream<Arguments> stringsToEscape() {
         return Stream.of(
+                arguments("foo\\\"b\\\"ar", "foo\"b\"ar"),
+                arguments("foo\\\\b\\\\ar", "foo\\b\\ar"),
                 arguments("foo\\bbar", "foo\bbar"),
                 arguments("foo\\fbar", "foo\fbar"),
                 arguments("foo\\nbar", "foo\nbar"),
@@ -55,7 +57,7 @@ public class TestJson {
                 arguments("foo\\u001cbar", "foo\u001cbar"),
                 arguments("foo\\u001dbar", "foo\u001dbar"),
                 arguments("foo\\u001ebar", "foo\u001ebar"),
-                arguments("foo\\u001fbar", "foo\u001fbar"));
-                arguments("いろは", "いろは"),
+                arguments("foo\\u001fbar", "foo\u001fbar"),
+                arguments("いろは", "いろは"));
     }
 }
