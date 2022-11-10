@@ -1,4 +1,8 @@
 public final class Json {
+    private Json() {
+        // No instantiation.
+    }
+
     /**
      * Appends a string to {@link StringBuilder}, with escaping it for JSON, only with minimum conversions.
      *
