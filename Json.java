@@ -9,7 +9,7 @@ public final class Json {
      *
      * @see <a href="https://datatracker.ietf.org/doc/html/rfc8259">RFC 8259 - The JavaScript Object Notation (JSON) Data Interchange Format</a>
      * @see <a href="https://github.com/stleary/JSON-java">JSON-java</a>
-     * @see <a href="The Solidus Issue">https://mondotondo.com/2010/12/29/the-solidus-issue/</a>
+     * @see <a href="https://mondotondo.com/2010/12/29/the-solidus-issue/">The Solidus Issue</a>
      */
     public static void appendStringEscapedForJson(final String original, final StringBuilder builder) {
         if (original == null || original.isEmpty()) {
