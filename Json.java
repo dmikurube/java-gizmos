@@ -1,10 +1,13 @@
+import java.io.IOException;
+import java.io.Writer;
+
 public final class Json {
     private Json() {
         // No instantiation.
     }
 
     /**
-     * Appends a string to {@link StringBuilder}, with escaping it for JSON, only with minimum conversions.
+     * Writes a string to {@link Writer}, with escaping it for JSON, only with minimum conversions.
      *
      * <p>Some JSON encoder implementations convert solidas (slash) {@code '/'} along with other special
      * characters, but it is not mandatory. They escape solidas just to be safe and secure against strings
@@ -15,7 +18,7 @@ public final class Json {
      * @see <a href="https://github.com/stleary/JSON-java">JSON-java</a>
      * @see <a href="https://mondotondo.com/2010/12/29/the-solidus-issue/">The Solidus Issue</a>
      */
-    public static void appendStringEscapedForJson(final String original, final StringBuilder builder) {
+    public static void writeStringEscapedForJson(final String original, final Writer writer) throws IOException {
         if (original == null || original.isEmpty()) {
             return;
         }
@@ -26,25 +29,25 @@ public final class Json {
             final char current = original.charAt(i);
             switch (current) {
                 case '\\':
-                    builder.append("\\\\");
+                    writer.append("\\\\");
                     break;
                 case '"':
-                    builder.append("\\\"");
+                    writer.append("\\\"");
                     break;
                 case '\b':  // 0008
-                    builder.append("\\b");
+                    writer.append("\\b");
                     break;
                 case '\f':  // 000c
-                    builder.append("\\f");
+                    writer.append("\\f");
                     break;
                 case '\n':  // 000a
-                    builder.append("\\n");
+                    writer.append("\\n");
                     break;
                 case '\r':  // 000d
-                    builder.append("\\r");
+                    writer.append("\\r");
                     break;
                 case '\t':  // 0009
-                    builder.append("\\t");
+                    writer.append("\\t");
                     break;
                 case '\0':
                 case '\u0001':
@@ -73,13 +76,13 @@ public final class Json {
                 case '\u001d':
                 case '\u001e':
                 case '\u001f':
-                    builder.append("\\u00");
+                    writer.append("\\u00");
                     final String hex = Integer.toHexString(current);
-                    builder.append("00", 0, 2 - hex.length());
-                    builder.append(hex);
+                    writer.append("00", 0, 2 - hex.length());
+                    writer.append(hex);
                     break;
                 default:
-                    builder.append(current);
+                    writer.append(current);
             }
         }
     }

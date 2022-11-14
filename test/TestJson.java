@@ -1,6 +1,8 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,10 +11,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class TestJson {
     @ParameterizedTest
     @MethodSource("stringsToEscape")
-    public void testEscape(final String expected, final String original) {
-        final StringBuilder builder = new StringBuilder();
-        Json.appendStringEscapedForJson(original, builder);
-        assertEquals(expected, builder.toString());
+    public void testEscape(final String expected, final String original) throws IOException {
+        final StringWriter writer = new StringWriter();
+        Json.writeStringEscapedForJson(original, writer);
+        assertEquals(expected, writer.toString());
     }
 
     private static Stream<Arguments> stringsToEscape() {
