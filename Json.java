@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 
 public final class Json {
@@ -86,4 +87,129 @@ public final class Json {
             }
         }
     }
+
+    public static void writeBooleanForJson(final boolean original, final Writer writer) throws IOException {
+        if (original) {
+            writer.append("true");
+        } else {
+            writer.append("false");
+        }
+    }
+
+    public static void writeIntegerForJson(final int original, final Writer writer) throws IOException {
+        writer.append(Integer.toString(original));
+    }
+
+    public static void writeLongForJson(final long original, final Writer writer) throws IOException {
+        writer.append(Long.toString(original));
+    }
+
+    public static void serializeExceptionToJson(final Throwable ex, final Writer writer) throws IOException {
+        serializeExceptionToJson(ex, null, writer);
+    }
+
+    public static void serializeExceptionToJson(final Throwable ex, final Thread thread, final Writer writer) throws IOException {
+        final ExceptionToJson converter = new ExceptionToJson(writer);
+        converter.writeExceptionInJson(ex, thread);
+    }
+
+    public static String serializeExceptionToJson(final Throwable ex) {
+        return serializeExceptionToJson(ex, (Thread) null);
+    }
+
+    public static String serializeExceptionToJson(final Throwable ex, final Thread thread) {
+        try (final StringWriter writer = new StringWriter()) {
+            final ExceptionToJson converter = new ExceptionToJson(writer);
+            converter.writeExceptionInJson(ex, thread);
+            return writer.toString();
+        } catch (final IOException ex2) {
+            throw new IllegalStateException("Unexpected IOException: It should not happen.", ex2);
+        }
+    }
+
+    private static class ExceptionToJson {
+        private ExceptionToJson(final Writer writer) {
+            this.writer = writer;
+        }
+
+        public void writeStackTraceElementInJson(final StackTraceElement element) throws IOException {
+            final String filename = element.getFileName();
+            final String methodName = element.getMethodName();  // Must not be null.
+            final String className = element.getClassName();  // Must not be null.
+            final int lineNumber = element.getLineNumber();
+            final boolean isNative = element.isNativeMethod();
+
+            this.writer.append("{");
+            if (filename != null) {
+                this.writer.append("\"filename\":\"");
+                writeStringEscapedForJson(filename, this.writer);
+                this.writer.append("\",");
+            }
+
+            this.writer.append("\"method\":\"");
+            writeStringEscapedForJson(methodName, this.writer);
+            this.writer.append("\",\"class\":\"");
+            writeStringEscapedForJson(className, this.writer);
+            this.writer.append("\"");
+
+            if (lineNumber >= 0) {
+                this.writer.append("\",\"lineNumber\":");
+                writeIntegerForJson(lineNumber, this.writer);
+            }
+
+            this.writer.append("\",\"native\":");
+            writeBooleanForJson(isNative, this.writer);
+            this.writer.append("}");
+        }
+
+        public void writeExceptionInJson(final Throwable ex, final Thread thread) throws IOException {
+            final Class<? extends Throwable> exceptionClass = ex.getClass();
+            final Package exceptionPackage = exceptionClass.getPackage();
+            final String exceptionFullClassName = exceptionClass.getName();
+
+            final String exceptionClassName;
+            if (exceptionPackage != null) {
+                exceptionClassName = exceptionFullClassName.replace(exceptionPackage.getName() + ".", "");
+            } else {
+                exceptionClassName = exceptionFullClassName;
+            }
+
+            final String exceptionPackageName;
+            if (exceptionPackage != null) {
+                exceptionPackageName = exceptionPackage.getName();
+            } else {
+                exceptionPackageName = null;
+            }
+
+            final String exceptionMessage = ex.getMessage();
+
+            this.writer.append("{");
+            this.writer.append("\"class\":\"");
+            writeStringEscapedForJson(exceptionClassName, this.writer);
+            this.writer.append("\"");
+            if (exceptionMessage != null) {
+                this.writer.append(",\"message\":\"");
+                writeStringEscapedForJson(exceptionMessage, this.writer);
+                this.writer.append("\"");
+            }
+            if (exceptionPackageName != null) {
+                this.writer.append(",\"package\":\"");
+                writeStringEscapedForJson(exceptionPackageName, this.writer);
+                this.writer.append("\"");
+            }
+            if (thread != null) {
+                this.writer.append(",\"thread\":");
+                writeLongForJson(thread.getId(), this.writer);
+                this.writer.append("\"");
+            }
+            /*
+              Write stacktrace here.
+            */
+
+            this.writer.append("}");
+        }
+
+        private final Writer writer;
+    }
+
 }

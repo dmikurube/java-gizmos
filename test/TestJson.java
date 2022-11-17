@@ -4,6 +4,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -61,5 +62,24 @@ public class TestJson {
                 arguments("foo\\u001ebar", "foo\u001ebar"),
                 arguments("foo\\u001fbar", "foo\u001fbar"),
                 arguments("いろは", "いろは"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("exceptionsToSerialize")
+    public void testException(final String expected, final Throwable ex) {
+        assertEquals(expected, Json.serializeExceptionToJson(ex));
+    }
+
+    private static Stream<Arguments> exceptionsToSerialize() {
+        return Stream.of(
+                arguments(
+                        "{\"class\":\"RuntimeException\",\"package\":\"java.lang\"}",
+                        new RuntimeException()),
+                arguments(
+                        "{\"class\":\"RuntimeException\",\"message\":\"foo\",\"package\":\"java.lang\"}",
+                        new RuntimeException("foo")),
+                arguments(
+                        "{\"class\":\"RuntimeException\",\"message\":\"foo\\\"bar\\nbaz\",\"package\":\"java.lang\"}",
+                        new RuntimeException("foo\"bar\nbaz")));
     }
 }
